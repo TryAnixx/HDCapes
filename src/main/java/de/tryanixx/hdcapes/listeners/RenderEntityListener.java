@@ -8,13 +8,18 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class RenderEntityListener implements RenderEntityEvent {
+
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+
     @Override
     public void onRender(Entity entity, double v, double v1, double v2, float v3) {
         if (HDCapes.getInstance().getFetchedUsers().containsKey(entity.getUniqueID())) {
             if (!HDCapes.getInstance().getFetchedUsers().get(entity.getUniqueID())) {
-                HDCapes.getInstance().getExecutorService().execute(() -> {
+                executorService.execute(() -> {
                     URL url = null;
                     try {
                         url = new URL("http://tryanixxaddons.de.cool/hdcapes/capes/" + entity.getUniqueID() + ".png");
