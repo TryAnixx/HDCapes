@@ -1,0 +1,10 @@
+{
+  "uuid": "%uuid%",
+  "name": "HDCapes",
+  "mainClass": "de.tryanixx.hdcapes.HDCapes",
+  "description": "PLACEHOLDER",
+  "version": 1,
+  "author": "TryAnixx",
+  "category": 1,
+  "icon": ""
+}
