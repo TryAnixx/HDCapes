@@ -35,7 +35,7 @@ public class HDCapesManager {
         }
         textureQueue.clear();
     }
-    public boolean setCape(BufferedImage img, String uuid) {
+    private boolean setCape(BufferedImage img, String uuid) {
         TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
 
         ResourceLocation loc = new ResourceLocation("capes/" + uuid);

@@ -2,6 +2,7 @@ package de.tryanixx.hdcapes;
 
 import de.tryanixx.hdcapes.authenticate.Authenticator;
 import de.tryanixx.hdcapes.cooldown.CooldownManager;
+import de.tryanixx.hdcapes.listeners.RenderEntityListener;
 import de.tryanixx.hdcapes.manager.HDCapesManager;
 import de.tryanixx.hdcapes.settingselements.ButtonElement;
 import de.tryanixx.hdcapes.settingselements.PreviewElement;
@@ -15,7 +16,10 @@ import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -35,6 +39,8 @@ public class HDCapes extends LabyModAddon {
 
     private File tempFile;
 
+    private HashMap<UUID, Boolean> fetchedUsers = new HashMap<>();
+
     @Override
     public void onEnable() {
         instance = this;
@@ -43,6 +49,9 @@ public class HDCapes extends LabyModAddon {
         cooldownManager = new CooldownManager();
         authenticator = new Authenticator();
 
+        RequestAPI.fetchandcacheusers();
+
+        api.getEventManager().register(new RenderEntityListener());
         api.registerForgeListener(hdCapesManager);
     }
 
@@ -113,5 +122,13 @@ public class HDCapes extends LabyModAddon {
 
     public CooldownManager getCooldownManager() {
         return cooldownManager;
+    }
+
+    public HDCapesManager getHdCapesManager() {
+        return hdCapesManager;
+    }
+
+    public HashMap<UUID, Boolean> getFetchedUsers() {
+        return fetchedUsers;
     }
 }
