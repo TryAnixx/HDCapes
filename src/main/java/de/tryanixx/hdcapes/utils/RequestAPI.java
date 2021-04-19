@@ -90,9 +90,19 @@ public class RequestAPI {
                 in.close();
                 fis.close();
 
-                if (httpUrlConnection.getResponseCode() != 200) {
-                    JOptionPane.showMessageDialog(null, "Error! Please contact our Support!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+                if (httpUrlConnection.getResponseCode() == 31) {
+                    JOptionPane.showMessageDialog(null, "This cloak got banned from HDCapes!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+                    int code = httpUrlConnection.getResponseCode();
+                    System.out.println("CODE: " + code);
+                    return;
                 }
+
+               // if (httpUrlConnection.getResponseCode() != 200 || httpUrlConnection.getResponseCode() != 31) {
+                //     int code = httpUrlConnection.getResponseCode();
+                //  System.out.println("CODE: " + code);
+                //  JOptionPane.showMessageDialog(null, "Error! Please contact our Support!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+                //  return;
+                //}
                 HDCapes.getInstance().setTempFile(null);
                 HDCapes.getInstance().getCooldownManager().startCooldown();
             } catch (Exception e) {

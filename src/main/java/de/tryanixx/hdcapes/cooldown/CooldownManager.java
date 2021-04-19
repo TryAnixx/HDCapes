@@ -18,7 +18,7 @@ public class CooldownManager {
         cooldown = true;
         remainingTime = 30;
         executorService.scheduleAtFixedRate(() -> {
-            if(remainingTime == 0) {
+            if(remainingTime == 1) {
                 cooldown = false;
                 executorService.shutdown();
                 return;

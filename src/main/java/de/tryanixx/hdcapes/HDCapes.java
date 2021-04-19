@@ -13,6 +13,7 @@ import net.labymod.settings.elements.SettingsElement;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
+import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -81,7 +82,8 @@ public class HDCapes extends LabyModAddon {
                             JOptionPane.showMessageDialog(null, "Wrong resolution! Max resolution: " + MAX_WIDTH + " x " + MAX_HEIGHT, "HDCapes", JOptionPane.ERROR_MESSAGE);
                             return;
                         }
-                        hdCapesManager.getTextureQueue().put(api.getPlayerUUID(), ImageIO.read(file));
+                        BufferedImage image = parseImage(img, true);
+                        hdCapesManager.getTextureQueue().put(api.getPlayerUUID(), image);
                         tempFile = file;
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -90,7 +92,26 @@ public class HDCapes extends LabyModAddon {
             });
         }
     }
+    protected BufferedImage parseImage(BufferedImage img, boolean parseImage) {
+        if (img != null && parseImage) {
+            int imageWidth = 64;
+            int imageHeight = 32;
 
+            BufferedImage srcImg = img;
+            int srcWidth = srcImg.getWidth();
+            int srcHeight = srcImg.getHeight();
+            while ((imageWidth < srcWidth) || (imageHeight < srcHeight)) {
+                imageWidth *= 2;
+                imageHeight *= 2;
+            }
+            BufferedImage imgNew = new BufferedImage(imageWidth, imageHeight, 2);
+            Graphics g = imgNew.getGraphics();
+            g.drawImage(img, 0, 0, null);
+            g.dispose();
+            return imgNew;
+        }
+        return img;
+    }
     private void deleteCape() {
         RequestAPI.deleteCape();
     }

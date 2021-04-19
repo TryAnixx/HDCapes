@@ -8,9 +8,7 @@ import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
-import org.lwjgl.Sys;
 
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.util.HashMap;
 import java.util.Iterator;
@@ -29,22 +27,21 @@ public class HDCapesManager {
     public void handle(TickEvent.ClientTickEvent event) {
         //TODO FIX QUOTE
         ticker++;
-        if(ticker % 50 != 0) return;
-        System.out.println(ticker);
-        if(lastErrorMessage != null) {
+        if (ticker % 50 != 0) return;
+        if (lastErrorMessage != null) {
             LabyMod.getInstance().getGuiCustomAchievement().displayAchievement("HDCapes", lastErrorMessage);
             LabyMod.getInstance().getGuiCustomAchievement().updateAchievementWindow();
             lastErrorMessage = null;
         }
-        if(textureQueue.isEmpty()) return;
-        if(queueing) return;
+        if (textureQueue.isEmpty()) return;
+        if (queueing) return;
         queueing = true;
         Iterator<Map.Entry<UUID, BufferedImage>> it = textureQueue.entrySet().iterator();
-        while(it.hasNext()) {
+        while (it.hasNext()) {
             Map.Entry<UUID, BufferedImage> pair = it.next();
             BufferedImage img = pair.getValue();
             UUID keyUUID = pair.getKey();
-            if(setCape(img, keyUUID.toString())) {
+            if (setCape(img, keyUUID.toString())) {
                 LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler().getResourceLocations().put(keyUUID, new ResourceLocation("capes/" + keyUUID.toString()));
             }
             it.remove();
@@ -63,33 +60,11 @@ public class HDCapesManager {
             ((CustomImage) old).deleteGlTexture();
             old = null;
         }
-        BufferedImage image = parseImage(img, true);
-        CustomImage textureCosmetic = new CustomImage(loc, image);
+        CustomImage textureCosmetic = new CustomImage(loc, img);
         boolean sucess = textureManager.loadTexture(loc, textureCosmetic);
         long end = System.currentTimeMillis() - start;
         System.out.println(end + " UUID: " + uuid);
         return sucess;
-    }
-
-    protected BufferedImage parseImage(BufferedImage img, boolean parseImage) {
-        if (img != null && parseImage) {
-            int imageWidth = 64;
-            int imageHeight = 32;
-
-            BufferedImage srcImg = img;
-            int srcWidth = srcImg.getWidth();
-            int srcHeight = srcImg.getHeight();
-            while ((imageWidth < srcWidth) || (imageHeight < srcHeight)) {
-                imageWidth *= 2;
-                imageHeight *= 2;
-            }
-            BufferedImage imgNew = new BufferedImage(imageWidth, imageHeight, 2);
-            Graphics g = imgNew.getGraphics();
-            g.drawImage(img, 0, 0, null);
-            g.dispose();
-            return imgNew;
-        }
-        return img;
     }
 
     public HashMap<UUID, BufferedImage> getTextureQueue() {
