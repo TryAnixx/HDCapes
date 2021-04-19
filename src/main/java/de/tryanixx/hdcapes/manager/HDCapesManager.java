@@ -18,7 +18,6 @@ import java.util.UUID;
 public class HDCapesManager {
 
     private HashMap<UUID, BufferedImage> textureQueue = new HashMap<>();
-    private String lastErrorMessage;
 
     private int ticker;
     private boolean queueing;
@@ -26,31 +25,24 @@ public class HDCapesManager {
     @SubscribeEvent
     public void handle(TickEvent.ClientTickEvent event) {
         //TODO FIX QUOTE
-        ticker++;
-        if (ticker % 50 != 0) return;
-        if (lastErrorMessage != null) {
-            LabyMod.getInstance().getGuiCustomAchievement().displayAchievement("HDCapes", lastErrorMessage);
-            LabyMod.getInstance().getGuiCustomAchievement().updateAchievementWindow();
-            lastErrorMessage = null;
-        }
-        if (textureQueue.isEmpty()) return;
-        if (queueing) return;
-        queueing = true;
-        Iterator<Map.Entry<UUID, BufferedImage>> it = textureQueue.entrySet().iterator();
-        while (it.hasNext()) {
-            Map.Entry<UUID, BufferedImage> pair = it.next();
-            BufferedImage img = pair.getValue();
-            UUID keyUUID = pair.getKey();
-            if (setCape(img, keyUUID.toString())) {
-                LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler().getResourceLocations().put(keyUUID, new ResourceLocation("capes/" + keyUUID.toString()));
-            }
-            it.remove();
-        }
-        queueing = false;
+      ticker++;
+      if (ticker % 50 != 0) return;
+      if (textureQueue.isEmpty()) return;
+      if (queueing) return;
+      queueing = true;
+      Iterator<Map.Entry<UUID, BufferedImage>> it = textureQueue.entrySet().iterator();
+      while (it.hasNext()) {
+          Map.Entry<UUID, BufferedImage> pair = it.next();
+          BufferedImage img = pair.getValue();
+          UUID keyUUID = pair.getKey();
+          if (setCape(img, keyUUID.toString())) {
+              LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler().getResourceLocations().put(keyUUID, new ResourceLocation("capes/" + keyUUID.toString()));
+          }
+          it.remove();
+      }
+      queueing = false;
     }
-
-
-    private boolean setCape(BufferedImage img, String uuid) {
+    public boolean setCape(BufferedImage img, String uuid) {
         long start = System.currentTimeMillis();
         TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
 
@@ -69,9 +61,5 @@ public class HDCapesManager {
 
     public HashMap<UUID, BufferedImage> getTextureQueue() {
         return textureQueue;
-    }
-
-    public void setLastErrorMessage(String lastErrorMessage) {
-        this.lastErrorMessage = lastErrorMessage;
     }
 }

@@ -115,7 +115,7 @@ public class HDCapes extends LabyModAddon {
         return img;
     }
     private void deleteCape() {
-        RequestAPI.deleteCape();
+        RequestAPI.deleteCape(api.getPlayerUUID());
     }
 
     private void uploadCapeTexture() {

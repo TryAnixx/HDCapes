@@ -41,7 +41,7 @@ public class RequestAPI {
         }, 0, 5, TimeUnit.MINUTES);
     }
 
-    public static void deleteCape() {
+    public static void deleteCape(UUID uuid) {
         HDCapes.getInstance().getAuthenticator().authenticate(Authenticator.SERVER_HASH);
         exservice.execute(() -> {
             try {
