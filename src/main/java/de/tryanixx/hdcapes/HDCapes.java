@@ -66,6 +66,7 @@ public class HDCapes extends LabyModAddon {
         subSettings.add(new ButtonElement("Choose texture", this::openFileDialog));
         subSettings.add(new ButtonElement("Upload texture", this::uploadCapeTexture));
         subSettings.add(new ButtonElement("Delete texture", this::deleteCape));
+        //TODO ADD DELETE CAPE COOLDOWN
     }
     private void openFileDialog() {
         if (!FileChooser.isOpened()) {
@@ -78,6 +79,7 @@ public class HDCapes extends LabyModAddon {
                             return;
                         }
                         BufferedImage img = ImageIO.read(file);
+                        if(img == null) return;
                         if (img.getWidth() > MAX_WIDTH || img.getHeight() > MAX_HEIGHT) {
                             JOptionPane.showMessageDialog(null, "Wrong resolution! Max resolution: " + MAX_WIDTH + " x " + MAX_HEIGHT, "HDCapes", JOptionPane.ERROR_MESSAGE);
                             return;

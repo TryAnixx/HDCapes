@@ -16,21 +16,29 @@ import java.net.URL;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.TimeUnit;
 
 public class RequestAPI {
 
     private static ExecutorService exservice = Executors.newSingleThreadScheduledExecutor();
+    private static ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
     public static void fetchandcacheusers() {
-        exservice.execute(() -> {
+        scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                 String users = getURLContent("http://tryanixxaddons.de.cool/hdcapes/database.php");
                 JsonArray object = new JsonParser().parse(users).getAsJsonArray();
-                object.forEach(jsonElement -> HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false));
+                object.forEach(jsonElement -> {
+                    String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
+                    if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
+                        HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
+                    }
+                });
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        });
+        }, 0, 5, TimeUnit.MINUTES);
     }
 
     public static void deleteCape() {
@@ -53,19 +61,20 @@ public class RequestAPI {
             }
         });
     }
+
     public static boolean upload() {
         exservice.execute(() -> {
 
             if (!hasCape(LabyMod.getInstance().getPlayerUUID())) {
                 //TODO CONNOR KANN HIER AUCH IRGENDWAS COOLES DESIGN MÄßIGES PROVIDEN LOL GIHUB SIEHT DAS WNEN DU DAS LIEST KEINE AHNUNG BIST DU TOLL VIELLEICHT!
                 JOptionPane.showMessageDialog(null, "You dont own / activated a cape!", "HDCapes", JOptionPane.ERROR_MESSAGE);
-               return;
+                return;
             }
 
             if (HDCapes.getInstance().getCooldownManager().isCooldown()) {
                 //TODO CONNOR MUSS PROVIDEN
                 JOptionPane.showMessageDialog(null, "Please wait " + HDCapes.getInstance().getCooldownManager().getRemainingTime() + " seconds!", "HDCapes", JOptionPane.ERROR_MESSAGE);
-               return;
+                return;
             }
 
             HDCapes.getInstance().getAuthenticator().authenticate(Authenticator.SERVER_HASH);
@@ -76,6 +85,10 @@ public class RequestAPI {
                 httpUrlConnection.setDoOutput(true);
                 httpUrlConnection.setRequestMethod("POST");
                 OutputStream os = httpUrlConnection.getOutputStream();
+                if (HDCapes.getInstance().getTempFile() == null) {
+                    JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 BufferedInputStream fis = new BufferedInputStream(new FileInputStream(HDCapes.getInstance().getTempFile()));
 
                 long totalByte = fis.available();
@@ -84,25 +97,24 @@ public class RequestAPI {
                 }
 
                 os.close();
+
+                if (httpUrlConnection.getResponseCode() == 403) {
+                    JOptionPane.showMessageDialog(null, "This cloak got banned from HDCapes!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
+
                 BufferedReader in = new BufferedReader(
                         new InputStreamReader(
                                 httpUrlConnection.getInputStream()));
                 in.close();
                 fis.close();
 
-                if (httpUrlConnection.getResponseCode() == 31) {
-                    JOptionPane.showMessageDialog(null, "This cloak got banned from HDCapes!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+                if (httpUrlConnection.getResponseCode() != 200) {
                     int code = httpUrlConnection.getResponseCode();
-                    System.out.println("CODE: " + code);
+                    System.out.println("ERROR CODE: " + code);
+                    JOptionPane.showMessageDialog(null, "Error! Please contact our Support!", "HDCapes", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
-
-               // if (httpUrlConnection.getResponseCode() != 200 || httpUrlConnection.getResponseCode() != 31) {
-                //     int code = httpUrlConnection.getResponseCode();
-                //  System.out.println("CODE: " + code);
-                //  JOptionPane.showMessageDialog(null, "Error! Please contact our Support!", "HDCapes", JOptionPane.ERROR_MESSAGE);
-                //  return;
-                //}
                 HDCapes.getInstance().setTempFile(null);
                 HDCapes.getInstance().getCooldownManager().startCooldown();
             } catch (Exception e) {
