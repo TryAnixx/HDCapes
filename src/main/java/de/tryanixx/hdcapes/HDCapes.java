@@ -1,7 +1,7 @@
 package de.tryanixx.hdcapes;
 
 import de.tryanixx.hdcapes.authenticate.Authenticator;
-import de.tryanixx.hdcapes.cooldown.Cooldown;
+import de.tryanixx.hdcapes.cooldown.CooldownManager;
 import de.tryanixx.hdcapes.listeners.RenderEntityListener;
 import de.tryanixx.hdcapes.manager.HDCapesManager;
 import de.tryanixx.hdcapes.settingselements.ButtonElement;
@@ -10,8 +10,10 @@ import de.tryanixx.hdcapes.settingselements.PreviewElement;
 import de.tryanixx.hdcapes.utils.FileChooser;
 import de.tryanixx.hdcapes.utils.RequestAPI;
 import net.labymod.api.LabyModAddon;
-import net.labymod.main.LabyMod;
+import net.labymod.settings.elements.ControlElement;
 import net.labymod.settings.elements.SettingsElement;
+import net.labymod.utils.Consumer;
+import net.labymod.utils.Material;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
@@ -34,6 +36,7 @@ public class HDCapes extends LabyModAddon {
     private HDCapesManager hdCapesManager;
 
     private Authenticator authenticator;
+    private CooldownManager cooldownManager;
 
     public static final int MAX_HEIGHT = 1100;
     public static final int MAX_WIDTH = 1408;
@@ -48,6 +51,7 @@ public class HDCapes extends LabyModAddon {
 
         hdCapesManager = new HDCapesManager();
         authenticator = new Authenticator();
+        cooldownManager = new CooldownManager();
 
         RequestAPI.fetchandcacheusers();
 
@@ -62,12 +66,11 @@ public class HDCapes extends LabyModAddon {
 
     @Override
     protected void fillSettings(List<SettingsElement> subSettings) {
-        subSettings.add(new PreviewElement());
-        subSettings.add(new ButtonElement("Choose texture", this::openFileDialog));
-        subSettings.add(new ButtonElement("Upload texture", this::uploadCapeTexture));
-        subSettings.add(new ButtonElement("Delete texture", this::deleteCape));
+        subSettings.add(new ButtonElement(1, "Choose texture (Offline-Preview)", new ControlElement.IconData(Material.ITEM_FRAME), "Click", false, buttonElement -> openFileDialog()));
+        subSettings.add(new ButtonElement(2, "Upload texture", new ControlElement.IconData(Material.REDSTONE_COMPARATOR_ON), "Click", true, buttonElement -> uploadCapeTexture()));
+        subSettings.add(new ButtonElement(3, "Delete texture", new ControlElement.IconData(Material.BARRIER), "Click", true, buttonElement -> deleteCape()));
         subSettings.add(new DiscordElement("Discord", "Discord", "Discord"));
-        //TODO ADD DELETE CAPE COOLDOWN
+        subSettings.add(new PreviewElement());
     }
 
     private void openFileDialog() {
@@ -124,12 +127,6 @@ public class HDCapes extends LabyModAddon {
     }
 
     private void uploadCapeTexture() {
-        if (Cooldown.isInCooldown(LabyMod.getInstance().getPlayerUUID(), "upload")) {
-            //TODO CONNOR MUSS PROVIDEN
-            int timeLeft = Cooldown.getTimeLeft(LabyMod.getInstance().getPlayerUUID(), "upload");
-            JOptionPane.showMessageDialog(null, "Please wait " + timeLeft + " seconds!", "HDCapes", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
         RequestAPI.upload();
     }
 
@@ -159,5 +156,9 @@ public class HDCapes extends LabyModAddon {
 
     public HashMap<UUID, Boolean> getFetchedUsers() {
         return fetchedUsers;
+    }
+
+    public CooldownManager getCooldownManager() {
+        return cooldownManager;
     }
 }

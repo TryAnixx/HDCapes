@@ -6,7 +6,6 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.tryanixx.hdcapes.HDCapes;
 import de.tryanixx.hdcapes.authenticate.Authenticator;
-import de.tryanixx.hdcapes.cooldown.Cooldown;
 import net.labymod.main.LabyMod;
 import org.apache.commons.io.IOUtils;
 
@@ -67,7 +66,7 @@ public class RequestAPI {
             JOptionPane.showMessageDialog(null, "You dont own / activated a cape!", "HDCapes", JOptionPane.ERROR_MESSAGE);
             return true;
         }
-        if (HDCapes.getInstance().getTempFile() == null || HDCapes.getInstance().getTempFile().getAbsolutePath() == null || HDCapes.getInstance().getTempFile().getAbsoluteFile() == null) {
+        if (HDCapes.getInstance().getTempFile() == null) {
             JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
             return true;
         }
@@ -107,8 +106,6 @@ public class RequestAPI {
                     return;
                 }
                 HDCapes.getInstance().setTempFile(null);
-                Cooldown c = new Cooldown(LabyMod.getInstance().getPlayerUUID(), "upload", 30);
-                c.start();
             } catch (Exception e) {
                 e.printStackTrace();
             }
