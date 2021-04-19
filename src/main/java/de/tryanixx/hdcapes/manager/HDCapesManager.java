@@ -2,6 +2,7 @@ package de.tryanixx.hdcapes.manager;
 
 import de.tryanixx.hdcapes.utils.CustomImage;
 import net.labymod.main.LabyMod;
+import net.labymod.user.cosmetic.custom.handler.CloakImageHandler;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.renderer.texture.ITextureObject;
 import net.minecraft.client.renderer.texture.TextureManager;
@@ -22,11 +23,14 @@ public class HDCapesManager {
     private int ticker;
     private boolean queueing;
 
+    private boolean backup;
+    private ResourceLocation originalcape;
+
     @SubscribeEvent
     public void handle(TickEvent.ClientTickEvent event) {
         //TODO FIX QUOTE
       ticker++;
-      if (ticker % 50 != 0) return;
+      if (ticker % 60 != 0) return;
       if (textureQueue.isEmpty()) return;
       if (queueing) return;
       queueing = true;
@@ -36,7 +40,12 @@ public class HDCapesManager {
           BufferedImage img = pair.getValue();
           UUID keyUUID = pair.getKey();
           if (setCape(img, keyUUID.toString())) {
-              LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler().getResourceLocations().put(keyUUID, new ResourceLocation("capes/" + keyUUID.toString()));
+              CloakImageHandler cloakImageHandler = LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler();
+              if(!backup && LabyMod.getInstance().getPlayerUUID().equals(keyUUID)) {
+                  backup = true;
+                  originalcape = cloakImageHandler.getResourceLocations().get(keyUUID);
+              }
+              cloakImageHandler.getResourceLocations().put(keyUUID, new ResourceLocation("hdcapes/" + keyUUID.toString()));
           }
           it.remove();
       }
@@ -46,7 +55,7 @@ public class HDCapesManager {
         long start = System.currentTimeMillis();
         TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
 
-        ResourceLocation loc = new ResourceLocation("capes/" + uuid);
+        ResourceLocation loc = new ResourceLocation("hdcapes/" + uuid);
         ITextureObject old = textureManager.getTexture(loc);
         if (old instanceof CustomImage && ((CustomImage) old).isLoaded()) {
             ((CustomImage) old).deleteGlTexture();
@@ -61,5 +70,11 @@ public class HDCapesManager {
 
     public HashMap<UUID, BufferedImage> getTextureQueue() {
         return textureQueue;
+    }
+    public void reset() {
+        CloakImageHandler cloakImageHandler = LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler();
+        if(originalcape != null) {
+            cloakImageHandler.getResourceLocations().put(LabyMod.getInstance().getPlayerUUID(), originalcape);
+        }
     }
 }

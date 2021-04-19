@@ -1,14 +1,16 @@
 package de.tryanixx.hdcapes;
 
 import de.tryanixx.hdcapes.authenticate.Authenticator;
-import de.tryanixx.hdcapes.cooldown.CooldownManager;
+import de.tryanixx.hdcapes.cooldown.Cooldown;
 import de.tryanixx.hdcapes.listeners.RenderEntityListener;
 import de.tryanixx.hdcapes.manager.HDCapesManager;
 import de.tryanixx.hdcapes.settingselements.ButtonElement;
+import de.tryanixx.hdcapes.settingselements.DiscordElement;
 import de.tryanixx.hdcapes.settingselements.PreviewElement;
 import de.tryanixx.hdcapes.utils.FileChooser;
 import de.tryanixx.hdcapes.utils.RequestAPI;
 import net.labymod.api.LabyModAddon;
+import net.labymod.main.LabyMod;
 import net.labymod.settings.elements.SettingsElement;
 
 import javax.imageio.ImageIO;
@@ -27,10 +29,9 @@ public class HDCapes extends LabyModAddon {
 
     private static HDCapes instance;
 
-    private ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
 
     private HDCapesManager hdCapesManager;
-    private CooldownManager cooldownManager;
 
     private Authenticator authenticator;
 
@@ -46,7 +47,6 @@ public class HDCapes extends LabyModAddon {
         instance = this;
 
         hdCapesManager = new HDCapesManager();
-        cooldownManager = new CooldownManager();
         authenticator = new Authenticator();
 
         RequestAPI.fetchandcacheusers();
@@ -66,8 +66,10 @@ public class HDCapes extends LabyModAddon {
         subSettings.add(new ButtonElement("Choose texture", this::openFileDialog));
         subSettings.add(new ButtonElement("Upload texture", this::uploadCapeTexture));
         subSettings.add(new ButtonElement("Delete texture", this::deleteCape));
+        subSettings.add(new DiscordElement("Discord", "Discord", "Discord"));
         //TODO ADD DELETE CAPE COOLDOWN
     }
+
     private void openFileDialog() {
         if (!FileChooser.isOpened()) {
             executorService.execute(() -> {
@@ -79,7 +81,7 @@ public class HDCapes extends LabyModAddon {
                             return;
                         }
                         BufferedImage img = ImageIO.read(file);
-                        if(img == null) return;
+                        if (img == null) return;
                         if (img.getWidth() > MAX_WIDTH || img.getHeight() > MAX_HEIGHT) {
                             JOptionPane.showMessageDialog(null, "Wrong resolution! Max resolution: " + MAX_WIDTH + " x " + MAX_HEIGHT, "HDCapes", JOptionPane.ERROR_MESSAGE);
                             return;
@@ -94,6 +96,7 @@ public class HDCapes extends LabyModAddon {
             });
         }
     }
+
     protected BufferedImage parseImage(BufferedImage img, boolean parseImage) {
         if (img != null && parseImage) {
             int imageWidth = 64;
@@ -114,11 +117,19 @@ public class HDCapes extends LabyModAddon {
         }
         return img;
     }
+
     private void deleteCape() {
-        RequestAPI.deleteCape(api.getPlayerUUID());
+        hdCapesManager.reset();
+        RequestAPI.deleteCape();
     }
 
     private void uploadCapeTexture() {
+        if (Cooldown.isInCooldown(LabyMod.getInstance().getPlayerUUID(), "upload")) {
+            //TODO CONNOR MUSS PROVIDEN
+            int timeLeft = Cooldown.getTimeLeft(LabyMod.getInstance().getPlayerUUID(), "upload");
+            JOptionPane.showMessageDialog(null, "Please wait " + timeLeft + " seconds!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         RequestAPI.upload();
     }
 
@@ -140,10 +151,6 @@ public class HDCapes extends LabyModAddon {
 
     public void setTempFile(File tempFile) {
         this.tempFile = tempFile;
-    }
-
-    public CooldownManager getCooldownManager() {
-        return cooldownManager;
     }
 
     public HDCapesManager getHdCapesManager() {

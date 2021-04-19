@@ -6,6 +6,7 @@ import com.google.gson.JsonObject;
 import com.google.gson.JsonParser;
 import de.tryanixx.hdcapes.HDCapes;
 import de.tryanixx.hdcapes.authenticate.Authenticator;
+import de.tryanixx.hdcapes.cooldown.Cooldown;
 import net.labymod.main.LabyMod;
 import org.apache.commons.io.IOUtils;
 
@@ -41,7 +42,7 @@ public class RequestAPI {
         }, 0, 5, TimeUnit.MINUTES);
     }
 
-    public static void deleteCape(UUID uuid) {
+    public static void deleteCape() {
         HDCapes.getInstance().getAuthenticator().authenticate(Authenticator.SERVER_HASH);
         exservice.execute(() -> {
             try {
@@ -54,7 +55,6 @@ public class RequestAPI {
                 if (code == 200) {
                     System.out.println("HDCapes » PING SUCCESFULLY");
                 }
-                //TODO DELETE CAPE CLIENTSIDE AND REMOVE
                 HDCapes.getInstance().setTempFile(null);
             } catch (Exception e) {
                 e.printStackTrace();
@@ -63,20 +63,15 @@ public class RequestAPI {
     }
 
     public static boolean upload() {
+        if (!hasCape(LabyMod.getInstance().getPlayerUUID())) {
+            JOptionPane.showMessageDialog(null, "You dont own / activated a cape!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+            return true;
+        }
+        if (HDCapes.getInstance().getTempFile() == null || HDCapes.getInstance().getTempFile().getAbsolutePath() == null || HDCapes.getInstance().getTempFile().getAbsoluteFile() == null) {
+            JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+            return true;
+        }
         exservice.execute(() -> {
-
-            if (!hasCape(LabyMod.getInstance().getPlayerUUID())) {
-                //TODO CONNOR KANN HIER AUCH IRGENDWAS COOLES DESIGN MÄßIGES PROVIDEN LOL GIHUB SIEHT DAS WNEN DU DAS LIEST KEINE AHNUNG BIST DU TOLL VIELLEICHT!
-                JOptionPane.showMessageDialog(null, "You dont own / activated a cape!", "HDCapes", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
-            if (HDCapes.getInstance().getCooldownManager().isCooldown()) {
-                //TODO CONNOR MUSS PROVIDEN
-                JOptionPane.showMessageDialog(null, "Please wait " + HDCapes.getInstance().getCooldownManager().getRemainingTime() + " seconds!", "HDCapes", JOptionPane.ERROR_MESSAGE);
-                return;
-            }
-
             HDCapes.getInstance().getAuthenticator().authenticate(Authenticator.SERVER_HASH);
 
             try {
@@ -85,10 +80,6 @@ public class RequestAPI {
                 httpUrlConnection.setDoOutput(true);
                 httpUrlConnection.setRequestMethod("POST");
                 OutputStream os = httpUrlConnection.getOutputStream();
-                if (HDCapes.getInstance().getTempFile() == null) {
-                    JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
-                    return;
-                }
                 BufferedInputStream fis = new BufferedInputStream(new FileInputStream(HDCapes.getInstance().getTempFile()));
 
                 long totalByte = fis.available();
@@ -116,7 +107,8 @@ public class RequestAPI {
                     return;
                 }
                 HDCapes.getInstance().setTempFile(null);
-                HDCapes.getInstance().getCooldownManager().startCooldown();
+                Cooldown c = new Cooldown(LabyMod.getInstance().getPlayerUUID(), "upload", 30);
+                c.start();
             } catch (Exception e) {
                 e.printStackTrace();
             }
