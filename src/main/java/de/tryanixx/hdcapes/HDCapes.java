@@ -9,18 +9,22 @@ import de.tryanixx.hdcapes.settingselements.DiscordElement;
 import de.tryanixx.hdcapes.settingselements.PreviewElement;
 import de.tryanixx.hdcapes.utils.FileChooser;
 import de.tryanixx.hdcapes.utils.RequestAPI;
+import de.tryanixx.hdcapes.utils.Utils;
 import net.labymod.api.LabyModAddon;
+import net.labymod.main.LabyMod;
+import net.labymod.settings.elements.BooleanElement;
 import net.labymod.settings.elements.ControlElement;
 import net.labymod.settings.elements.SettingsElement;
-import net.labymod.utils.Consumer;
+import net.labymod.user.UserManager;
 import net.labymod.utils.Material;
 
+import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
+import java.lang.reflect.InvocationTargetException;
 import java.util.HashMap;
 import java.util.List;
 import java.util.UUID;
@@ -40,6 +44,7 @@ public class HDCapes extends LabyModAddon {
 
     public static final int MAX_HEIGHT = 1100;
     public static final int MAX_WIDTH = 1408;
+    private boolean seeowncapeonly;
 
     private File tempFile;
 
@@ -48,27 +53,33 @@ public class HDCapes extends LabyModAddon {
     @Override
     public void onEnable() {
         instance = this;
+        api.registerForgeListener(hdCapesManager = new HDCapesManager());
 
-        hdCapesManager = new HDCapesManager();
         authenticator = new Authenticator();
         cooldownManager = new CooldownManager();
 
-        RequestAPI.fetchandcacheusers();
+        RequestAPI.fetchAndCacheUsersScheduled();
 
         api.getEventManager().register(new RenderEntityListener());
-        api.registerForgeListener(hdCapesManager);
+
     }
 
     @Override
     public void loadConfig() {
-
+        this.seeowncapeonly = getConfig().has("seeowncapeonly") ? getConfig().get("seeowncapeonly").getAsBoolean() : false;
     }
 
     @Override
     protected void fillSettings(List<SettingsElement> subSettings) {
         subSettings.add(new ButtonElement(1, "Choose texture (Offline-Preview)", new ControlElement.IconData(Material.ITEM_FRAME), "Click", false, buttonElement -> openFileDialog()));
-        subSettings.add(new ButtonElement(2, "Upload texture", new ControlElement.IconData(Material.REDSTONE_COMPARATOR_ON), "Click", true, buttonElement -> uploadCapeTexture()));
+        subSettings.add(new ButtonElement(2, "Upload texture", new ControlElement.IconData(Material.REDSTONE_COMPARATOR), "Click", true, buttonElement -> uploadCapeTexture()));
         subSettings.add(new ButtonElement(3, "Delete texture", new ControlElement.IconData(Material.BARRIER), "Click", true, buttonElement -> deleteCape()));
+        subSettings.add(new ButtonElement(4, "Refresh", new ControlElement.IconData(Material.BED), "Click", true, buttonElement -> refreshCosmetics()));
+        subSettings.add(new BooleanElement("Only see own HDCape", this, new ControlElement.IconData(Material.BLAZE_ROD), "seeowncapeonly", this.seeowncapeonly).addCallback(aBoolean -> {
+            if (aBoolean) {
+                api.displayMessageInChat("§4HDSkins §8» §7To make the changes full effective please restart Minecraft.");
+            }
+        }));
         subSettings.add(new DiscordElement("Discord", "Discord", "Discord"));
         subSettings.add(new PreviewElement());
     }
@@ -76,7 +87,7 @@ public class HDCapes extends LabyModAddon {
     private void openFileDialog() {
         if (!FileChooser.isOpened()) {
             executorService.execute(() -> {
-                File file = FileChooser.openAWTFileDialog();
+                File file = FileChooser.openFileDialog();
                 if (file != null) {
                     try {
                         if (file.length() > 1024 * 1024) {
@@ -86,13 +97,15 @@ public class HDCapes extends LabyModAddon {
                         BufferedImage img = ImageIO.read(file);
                         if (img == null) return;
                         if (img.getWidth() > MAX_WIDTH || img.getHeight() > MAX_HEIGHT) {
-                            JOptionPane.showMessageDialog(null, "Wrong resolution! Max resolution: " + MAX_WIDTH + " x " + MAX_HEIGHT, "HDCapes", JOptionPane.ERROR_MESSAGE);
-                            return;
+                            img = Utils.getScaledImage(img);
+                            JOptionPane.showMessageDialog(null, "Please use our recommend resolution or cape template! We scaled your texutre." + MAX_WIDTH + " x " + MAX_HEIGHT, "HDCapes", JOptionPane.ERROR_MESSAGE);
                         }
                         BufferedImage image = parseImage(img, true);
                         hdCapesManager.getTextureQueue().put(api.getPlayerUUID(), image);
                         tempFile = file;
-                    } catch (IOException e) {
+                    } catch (IIOException e) {
+                        System.out.println("HDCapes » Cant read input file!");
+                    } catch (Exception e) {
                         e.printStackTrace();
                     }
                 }
@@ -121,12 +134,26 @@ public class HDCapes extends LabyModAddon {
         return img;
     }
 
+    private void refreshCosmetics() {
+        fetchedUsers.clear();
+        try {
+            UserManager.class.getDeclaredMethod("refresh", null).invoke(LabyMod.getInstance().getUserManager());
+        } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            e.printStackTrace();
+        }
+        RequestAPI.fetchAndCacheUser();
+    }
+
     private void deleteCape() {
         hdCapesManager.reset();
         RequestAPI.deleteCape();
     }
 
     private void uploadCapeTexture() {
+        if (HDCapes.getInstance().getTempFile() == null) {
+            JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+            return;
+        }
         RequestAPI.upload();
     }
 
@@ -160,5 +187,9 @@ public class HDCapes extends LabyModAddon {
 
     public CooldownManager getCooldownManager() {
         return cooldownManager;
+    }
+
+    public boolean isSeeowncapeonly() {
+        return seeowncapeonly;
     }
 }

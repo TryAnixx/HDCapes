@@ -2,6 +2,7 @@ package de.tryanixx.hdcapes.listeners;
 
 import de.tryanixx.hdcapes.HDCapes;
 import net.labymod.api.events.RenderEntityEvent;
+import net.labymod.main.LabyMod;
 import net.minecraft.entity.Entity;
 
 import javax.imageio.ImageIO;

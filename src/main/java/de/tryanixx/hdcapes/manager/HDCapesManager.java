@@ -41,6 +41,8 @@ public class HDCapesManager {
           UUID keyUUID = pair.getKey();
           if (setCape(img, keyUUID.toString())) {
               CloakImageHandler cloakImageHandler = LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler();
+              if(!cloakImageHandler.getResourceLocations().containsKey(keyUUID))
+                  continue;
               if(!backup && LabyMod.getInstance().getPlayerUUID().equals(keyUUID)) {
                   backup = true;
                   originalcape = cloakImageHandler.getResourceLocations().get(keyUUID);

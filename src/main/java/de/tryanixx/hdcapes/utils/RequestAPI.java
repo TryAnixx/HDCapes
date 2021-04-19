@@ -24,21 +24,54 @@ public class RequestAPI {
     private static ExecutorService exservice = Executors.newSingleThreadScheduledExecutor();
     private static ScheduledExecutorService scheduledExecutorService = Executors.newSingleThreadScheduledExecutor();
 
-    public static void fetchandcacheusers() {
+    public static void fetchAndCacheUsersScheduled() {
         scheduledExecutorService.scheduleAtFixedRate(() -> {
             try {
                 String users = getURLContent("http://tryanixxaddons.de.cool/hdcapes/database.php");
                 JsonArray object = new JsonParser().parse(users).getAsJsonArray();
                 object.forEach(jsonElement -> {
                     String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
-                    if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
-                        HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
+                    if (!HDCapes.getInstance().isSeeowncapeonly()) {
+                        if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
+                            HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
+                        }
+                    } else {
+                        if (uuid.equals(LabyMod.getInstance().getPlayerUUID())) {
+                            if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
+                                HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
+                            }
+                        }
                     }
                 });
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }, 0, 5, TimeUnit.MINUTES);
+    }
+
+    public static void fetchAndCacheUser() {
+        exservice.execute(() -> {
+            try {
+                String users = getURLContent("http://tryanixxaddons.de.cool/hdcapes/database.php");
+                JsonArray object = new JsonParser().parse(users).getAsJsonArray();
+                object.forEach(jsonElement -> {
+                    String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
+                    if (!HDCapes.getInstance().isSeeowncapeonly()) {
+                        if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
+                            HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
+                        }
+                    } else {
+                        if (uuid.equals(LabyMod.getInstance().getPlayerUUID())) {
+                            if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
+                                HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
+                            }
+                        }
+                    }
+                });
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        });
     }
 
     public static void deleteCape() {
@@ -64,10 +97,6 @@ public class RequestAPI {
     public static boolean upload() {
         if (!hasCape(LabyMod.getInstance().getPlayerUUID())) {
             JOptionPane.showMessageDialog(null, "You dont own / activated a cape!", "HDCapes", JOptionPane.ERROR_MESSAGE);
-            return true;
-        }
-        if (HDCapes.getInstance().getTempFile() == null) {
-            JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
             return true;
         }
         exservice.execute(() -> {
@@ -135,5 +164,9 @@ public class RequestAPI {
         con.setRequestProperty("User-Agent", "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2");
         con.connect();
         return IOUtils.toString(con.getInputStream(), "UTF-8");
+    }
+
+    public static ScheduledExecutorService getScheduledExecutorService() {
+        return scheduledExecutorService;
     }
 }
