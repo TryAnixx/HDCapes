@@ -11,16 +11,12 @@ import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
 import java.awt.image.BufferedImage;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
-import java.util.UUID;
+import java.util.*;
 
 public class HDCapesManager {
 
     private HashMap<UUID, BufferedImage> textureQueue = new HashMap<>();
 
-    private int ticker;
     private boolean queueing;
 
     private boolean backup;
@@ -28,31 +24,32 @@ public class HDCapesManager {
 
     @SubscribeEvent
     public void handle(TickEvent.ClientTickEvent event) {
-        //TODO FIX QUOTE
-      ticker++;
-      if (ticker % 60 != 0) return;
-      if (textureQueue.isEmpty()) return;
-      if (queueing) return;
-      queueing = true;
-      Iterator<Map.Entry<UUID, BufferedImage>> it = textureQueue.entrySet().iterator();
-      while (it.hasNext()) {
-          Map.Entry<UUID, BufferedImage> pair = it.next();
-          BufferedImage img = pair.getValue();
-          UUID keyUUID = pair.getKey();
-          if (setCape(img, keyUUID.toString())) {
-              CloakImageHandler cloakImageHandler = LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler();
-              if(!cloakImageHandler.getResourceLocations().containsKey(keyUUID))
-                  continue;
-              if(!backup && LabyMod.getInstance().getPlayerUUID().equals(keyUUID)) {
-                  backup = true;
-                  originalcape = cloakImageHandler.getResourceLocations().get(keyUUID);
-              }
-              cloakImageHandler.getResourceLocations().put(keyUUID, new ResourceLocation("hdcapes/" + keyUUID.toString()));
-          }
-          it.remove();
-      }
-      queueing = false;
+        if (textureQueue.isEmpty()) return;
+        if (queueing) return;
+        int id = new Random().nextInt();
+        System.out.println("QUEUE: " + queueing + " ID: " + id);
+        queueing = true;
+        Iterator<Map.Entry<UUID, BufferedImage>> it = textureQueue.entrySet().iterator();
+        while (it.hasNext()) {
+            Map.Entry<UUID, BufferedImage> pair = it.next();
+            BufferedImage img = pair.getValue();
+            UUID keyUUID = pair.getKey();
+            if (setCape(img, keyUUID.toString())) {
+                CloakImageHandler cloakImageHandler = LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler();
+                if (!cloakImageHandler.getResourceLocations().containsKey(keyUUID))
+                    continue;
+                if (!backup && LabyMod.getInstance().getPlayerUUID().equals(keyUUID)) {
+                    backup = true;
+                    originalcape = cloakImageHandler.getResourceLocations().get(keyUUID);
+                }
+                cloakImageHandler.getResourceLocations().put(keyUUID, new ResourceLocation("hdcapes/" + keyUUID.toString()));
+            }
+            it.remove();
+        }
+        queueing = false;
+        System.out.println("Finished Queue: " + id);
     }
+
     public boolean setCape(BufferedImage img, String uuid) {
         long start = System.currentTimeMillis();
         TextureManager textureManager = Minecraft.getMinecraft().getTextureManager();
@@ -73,9 +70,10 @@ public class HDCapesManager {
     public HashMap<UUID, BufferedImage> getTextureQueue() {
         return textureQueue;
     }
+
     public void reset() {
         CloakImageHandler cloakImageHandler = LabyMod.getInstance().getUserManager().getCosmeticImageManager().getCloakImageHandler();
-        if(originalcape != null) {
+        if (originalcape != null) {
             cloakImageHandler.getResourceLocations().put(LabyMod.getInstance().getPlayerUUID(), originalcape);
         }
     }

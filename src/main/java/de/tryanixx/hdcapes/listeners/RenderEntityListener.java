@@ -20,6 +20,7 @@ public class RenderEntityListener implements RenderEntityEvent {
     public void onRender(Entity entity, double v, double v1, double v2, float v3) {
         if (HDCapes.getInstance().getFetchedUsers().containsKey(entity.getUniqueID())) {
             if (!HDCapes.getInstance().getFetchedUsers().get(entity.getUniqueID())) {
+                HDCapes.getInstance().getFetchedUsers().replace(entity.getUniqueID(), true);
                 executorService.execute(() -> {
                     URL url = null;
                     try {
@@ -27,7 +28,6 @@ public class RenderEntityListener implements RenderEntityEvent {
                         BufferedImage img = ImageIO.read(url);
                         BufferedImage image = parseImage(img, true);
                         HDCapes.getInstance().getHdCapesManager().getTextureQueue().put(entity.getUniqueID(), image);
-                        HDCapes.getInstance().getFetchedUsers().replace(entity.getUniqueID(), true);
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
