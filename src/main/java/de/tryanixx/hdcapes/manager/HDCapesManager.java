@@ -29,7 +29,6 @@ public class HDCapesManager {
 
     @SubscribeEvent
     public void handle(TickEvent.ClientTickEvent event) {
-
         ticker++;
         if (ticker % 40 != 0) return;
         if (ticker == 40) {
@@ -61,7 +60,6 @@ public class HDCapesManager {
             it.remove();
         }
         queueing = false;
-        System.out.println("QUUE DONE");
     }
 
     public boolean setCape(BufferedImage img, String uuid) {

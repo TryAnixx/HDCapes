@@ -10,7 +10,9 @@ import de.tryanixx.hdcapes.settingselements.PreviewElement;
 import de.tryanixx.hdcapes.utils.FileChooser;
 import de.tryanixx.hdcapes.utils.RequestAPI;
 import de.tryanixx.hdcapes.utils.Utils;
+import net.labymod.api.LabyModAPI;
 import net.labymod.api.LabyModAddon;
+import net.labymod.core.LabyModCore;
 import net.labymod.main.LabyMod;
 import net.labymod.settings.elements.BooleanElement;
 import net.labymod.settings.elements.ControlElement;
@@ -45,6 +47,7 @@ public class HDCapes extends LabyModAddon {
     public static final int MAX_HEIGHT = 1100;
     public static final int MAX_WIDTH = 1408;
     private boolean seeowncapeonly;
+    private boolean disablePreview;
 
     private File tempFile;
 
@@ -59,7 +62,7 @@ public class HDCapes extends LabyModAddon {
         cooldownManager = new CooldownManager();
 
         RequestAPI.fetchAndCacheUsersScheduled();
-
+        LabyMod.getInstance().getDynamicTextureManager();
         api.getEventManager().register(new RenderEntityListener());
 
     }
@@ -76,6 +79,7 @@ public class HDCapes extends LabyModAddon {
         subSettings.add(new ButtonElement(3, "Delete texture", new ControlElement.IconData(Material.BARRIER), "Click", true, buttonElement -> deleteCape()));
         subSettings.add(new ButtonElement(4, "Refresh", new ControlElement.IconData(Material.BED), "Click", true, buttonElement -> refreshCosmetics()));
         subSettings.add(new BooleanElement("Only see own HDCape", this, new ControlElement.IconData(Material.BLAZE_ROD), "seeowncapeonly", this.seeowncapeonly).addCallback(aBoolean -> {
+            seeowncapeonly = aBoolean;
             refreshCosmetics();
         }));
         subSettings.add(new DiscordElement("Discord", "Discord", "Discord"));
@@ -133,6 +137,7 @@ public class HDCapes extends LabyModAddon {
     }
 
     private void refreshCosmetics() {
+        disablePreview = true;
         fetchedUsers.clear();
         try {
             UserManager.class.getDeclaredMethod("refresh", null).invoke(LabyMod.getInstance().getUserManager());
@@ -140,6 +145,7 @@ public class HDCapes extends LabyModAddon {
             e.printStackTrace();
         }
         RequestAPI.fetchAndCacheUser();
+        disablePreview = true;
     }
 
     private void deleteCape() {
@@ -191,5 +197,9 @@ public class HDCapes extends LabyModAddon {
 
     public boolean isSeeowncapeonly() {
         return seeowncapeonly;
+    }
+
+    public boolean isDisablePreview() {
+        return disablePreview;
     }
 }

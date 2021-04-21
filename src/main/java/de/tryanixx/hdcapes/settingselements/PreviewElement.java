@@ -1,11 +1,13 @@
 package de.tryanixx.hdcapes.settingselements;
 
+import de.tryanixx.hdcapes.HDCapes;
 import net.labymod.core.LabyModCore;
 import net.labymod.main.LabyMod;
 import net.labymod.settings.elements.SettingsElement;
 import net.labymod.utils.DrawUtils;
 
 public class PreviewElement extends SettingsElement {
+
     public PreviewElement() {
         super("PreviewElement", null);
     }
@@ -47,6 +49,7 @@ public class PreviewElement extends SettingsElement {
 
     @Override
     public void draw(int x, int y, int maxX, int maxY, int mouseX, int mouseY) {
+        if(HDCapes.getInstance().isDisablePreview()) return;
         if(LabyMod.getInstance().isInGame()) {
             int posX = maxX + (maxX / 7);
             int posY = 120 + (x / 2);

@@ -31,16 +31,8 @@ public class RequestAPI {
                 JsonArray object = new JsonParser().parse(users).getAsJsonArray();
                 object.forEach(jsonElement -> {
                     String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
-                    if (!HDCapes.getInstance().isSeeowncapeonly()) {
                         if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
                             HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
-                        }
-                    } else {
-                        if (uuid.equals(LabyMod.getInstance().getPlayerUUID())) {
-                            if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
-                                HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
-                            }
-                        }
                     }
                 });
             } catch (IOException e) {
@@ -57,16 +49,8 @@ public class RequestAPI {
                 JsonArray object = new JsonParser().parse(users).getAsJsonArray();
                 object.forEach(jsonElement -> {
                     String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
-                    if (!HDCapes.getInstance().isSeeowncapeonly()) {
-                        if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
-                            HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
-                        }
-                    } else {
-                        if (uuid.equals(LabyMod.getInstance().getPlayerUUID())) {
-                            if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
-                                HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
-                            }
-                        }
+                    if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
+                        HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
                     }
                 });
             } catch (IOException e) {
