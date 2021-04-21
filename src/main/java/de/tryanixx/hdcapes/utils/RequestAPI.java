@@ -50,6 +50,7 @@ public class RequestAPI {
     }
 
     public static void fetchAndCacheUser() {
+        HDCapes.getInstance().getFetchedUsers().clear();
         exservice.execute(() -> {
             try {
                 String users = getURLContent("http://tryanixxaddons.de.cool/hdcapes/database.php");
@@ -96,7 +97,7 @@ public class RequestAPI {
 
     public static boolean upload() {
         if (!hasCape(LabyMod.getInstance().getPlayerUUID())) {
-            JOptionPane.showMessageDialog(null, "You dont own / activated a cape!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+            exservice.execute(() -> JOptionPane.showMessageDialog(null, "You dont own / activated a cape!", "HDCapes", JOptionPane.ERROR_MESSAGE));
             return true;
         }
         exservice.execute(() -> {

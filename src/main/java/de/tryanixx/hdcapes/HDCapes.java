@@ -76,9 +76,7 @@ public class HDCapes extends LabyModAddon {
         subSettings.add(new ButtonElement(3, "Delete texture", new ControlElement.IconData(Material.BARRIER), "Click", true, buttonElement -> deleteCape()));
         subSettings.add(new ButtonElement(4, "Refresh", new ControlElement.IconData(Material.BED), "Click", true, buttonElement -> refreshCosmetics()));
         subSettings.add(new BooleanElement("Only see own HDCape", this, new ControlElement.IconData(Material.BLAZE_ROD), "seeowncapeonly", this.seeowncapeonly).addCallback(aBoolean -> {
-            if (aBoolean) {
-                api.displayMessageInChat("§4HDSkins §8» §7To make the changes full effective please restart Minecraft.");
-            }
+            refreshCosmetics();
         }));
         subSettings.add(new DiscordElement("Discord", "Discord", "Discord"));
         subSettings.add(new PreviewElement());
@@ -151,7 +149,9 @@ public class HDCapes extends LabyModAddon {
 
     private void uploadCapeTexture() {
         if (HDCapes.getInstance().getTempFile() == null) {
-            JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+            executorService.execute(() -> {
+                JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+            });
             return;
         }
         RequestAPI.upload();

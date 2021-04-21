@@ -20,6 +20,7 @@ public class RenderEntityListener implements RenderEntityEvent {
     public void onRender(Entity entity, double v, double v1, double v2, float v3) {
         if (HDCapes.getInstance().getFetchedUsers().containsKey(entity.getUniqueID())) {
             if (!HDCapes.getInstance().getFetchedUsers().get(entity.getUniqueID())) {
+                LabyMod.getInstance().getUserManager().isWhitelisted(entity.getUniqueID());
                 HDCapes.getInstance().getFetchedUsers().replace(entity.getUniqueID(), true);
                 executorService.execute(() -> {
                     URL url = null;
