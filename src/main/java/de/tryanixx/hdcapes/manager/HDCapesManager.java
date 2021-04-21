@@ -31,8 +31,8 @@ public class HDCapesManager {
     public void handle(TickEvent.ClientTickEvent event) {
 
         ticker++;
-        if (ticker % 60 != 0) return;
-        if (ticker == 60) {
+        if (ticker % 40 != 0) return;
+        if (ticker == 40) {
             user = LabyMod.getInstance().getUserManager().getUser(LabyMod.getInstance().getPlayerUUID());
         } else if (!LabyMod.getInstance().getUserManager().getUser(user.getUuid()).equals(user)) {
             user = LabyMod.getInstance().getUserManager().getUser(LabyMod.getInstance().getPlayerUUID());
