@@ -1,5 +1,6 @@
 package de.tryanixx.hdcapes.settingselements;
 
+import com.sun.jna.platform.win32.WinDef;
 import de.tryanixx.hdcapes.HDCapes;
 import net.labymod.core.LabyModCore;
 import net.labymod.main.LabyMod;
@@ -27,7 +28,8 @@ public class ButtonElement extends ControlElement {
     public ButtonElement(int id, String displayName, ControlElement.IconData iconData, String inButtonName, boolean cooldown, Consumer<ButtonElement> clickListener) {
         super(displayName, iconData);
         this.cooldown = cooldown;
-        this.button = new GuiButton(id, 0, 0, 0, 20, "");;
+        this.button = new GuiButton(id, 0, 0, 0, 20, "");
+        ;
         this.button.displayString = initBtnText = inButtonName;
         this.clickListener = clickListener;
         this.setSettingEnabled(true);
@@ -41,6 +43,7 @@ public class ButtonElement extends ControlElement {
         this.button.displayString = text;
         this.overriddenStringWidth = -1;
     }
+
     public void setText(String text, int overriddenStringWidth) {
         this.button.displayString = text;
         this.overriddenStringWidth = overriddenStringWidth;
@@ -51,7 +54,13 @@ public class ButtonElement extends ControlElement {
         if (this.button.mousePressed(this.mc, mouseX, mouseY)) {
             LabyModCore.getMinecraft().playSound(SettingsElement.BUTTON_PRESS_SOUND, 1.0F);
             this.clickListener.accept(this);
-            if(cooldown) HDCapes.getInstance().getCooldownManager().startCooldown();
+            if (this.displayName.equals("Upload texture")) {
+                if (cooldown) HDCapes.getInstance().getCooldownManager().startCooldownUpload();
+            } else if (this.displayName.equals("Delete texture")) {
+                if (cooldown) HDCapes.getInstance().getCooldownManager().startCooldownDelete();
+            } else if (this.displayName.equals("Refresh")) {
+                if (cooldown) HDCapes.getInstance().getCooldownManager().startCooldownRefresh();
+            }
         }
     }
 
@@ -62,21 +71,38 @@ public class ButtonElement extends ControlElement {
     public String getInitBtnText() {
         return initBtnText;
     }
+
     public void draw(int x, int y, int maxX, int maxY, int mouseX, int mouseY) {
         super.draw(x, y, maxX, maxY, mouseX, mouseY);
-        if (this.displayName != null){
+        if (this.displayName != null) {
             LabyMod.getInstance().getDrawUtils().drawRectangle(x - 1, y, x, maxY, Color.GRAY.getRGB());
         }
-        int stringWidth = this.overriddenStringWidth == -1 ? LabyModCore.getMinecraft().getFontRenderer().getStringWidth(this.button.displayString) :  this.overriddenStringWidth;
+        int stringWidth = this.overriddenStringWidth == -1 ? LabyModCore.getMinecraft().getFontRenderer().getStringWidth(this.button.displayString) : this.overriddenStringWidth;
 
-        if(cooldown){
+        if (cooldown) {
 
-            setSettingEnabled(!HDCapes.getInstance().getCooldownManager().isCooldown());
-            if(HDCapes.getInstance().getCooldownManager().isCooldown()){
-                setText("§c" + HDCapes.getInstance().getCooldownManager().getRemainingTime(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
-
-            }else {
-                setText(initBtnText);
+            if (this.displayName.equals("Upload texture")) {
+                setSettingEnabled(!HDCapes.getInstance().getCooldownManager().isCooldownUpload());
+                if (HDCapes.getInstance().getCooldownManager().isCooldownUpload()) {
+                    setText("§c" + HDCapes.getInstance().getCooldownManager().getRemainingTimeUpload(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
+                } else {
+                    setText(initBtnText);
+                }
+            } else if (this.displayName.equals("Delete texture")) {
+                setSettingEnabled(!HDCapes.getInstance().getCooldownManager().isCooldownDelete());
+                if (HDCapes.getInstance().getCooldownManager().isCooldownDelete()) {
+                    setText("§c" + HDCapes.getInstance().getCooldownManager().getRemainingTimeDelete(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
+                } else {
+                    setText(initBtnText);
+                }
+            }
+            if (this.displayName.equals("Refresh")) {
+                setSettingEnabled(!HDCapes.getInstance().getCooldownManager().isCooldownRefresh());
+                if (HDCapes.getInstance().getCooldownManager().isCooldownRefresh()) {
+                    setText("§c" + HDCapes.getInstance().getCooldownManager().getRemainingTimeRefresh(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
+                } else {
+                    setText(initBtnText);
+                }
             }
         }
         int buttonWidth = (this.displayName == null) ? (maxX - x) : (stringWidth + 20);

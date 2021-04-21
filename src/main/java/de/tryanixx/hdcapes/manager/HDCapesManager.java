@@ -31,10 +31,10 @@ public class HDCapesManager {
     public void handle(TickEvent.ClientTickEvent event) {
 
         ticker++;
-        if(ticker%60 != 0) return;
-        if(ticker == 60) {
+        if (ticker % 60 != 0) return;
+        if (ticker == 60) {
             user = LabyMod.getInstance().getUserManager().getUser(LabyMod.getInstance().getPlayerUUID());
-        } else if(!LabyMod.getInstance().getUserManager().getUser(user.getUuid()).equals(user)) {
+        } else if (!LabyMod.getInstance().getUserManager().getUser(user.getUuid()).equals(user)) {
             user = LabyMod.getInstance().getUserManager().getUser(LabyMod.getInstance().getPlayerUUID());
             HDCapes.getInstance().getFetchedUsers().clear();
             RequestAPI.fetchAndCacheUser();
