@@ -20,7 +20,7 @@ jar {
             if (!configurations.compile.isEmpty()) {
                 attributes(
                         'Class-Path': configurations.compile.collect{it.toURI().toString()}.join(' '),
-                        'Main-Class': 'de.tryanixx.loudervoicechat.Main')
+                        'Main-Class': 'de.tryanixx.hdcapes.installer.Main')
             }
         }
     }
@@ -35,7 +35,7 @@ plugins {
     id "net.minecraftforge.gradle.forge" version "2.0.2"
 }
 */
-version = "1.0"
+version = ""
 group= "de.tryanixx" // http://maven.apache.org/guides/mini/guide-naming-conventions.html
 archivesBaseName = "HDCapes"
 

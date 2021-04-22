@@ -10,9 +10,7 @@ import de.tryanixx.hdcapes.settingselements.PreviewElement;
 import de.tryanixx.hdcapes.utils.FileChooser;
 import de.tryanixx.hdcapes.utils.RequestAPI;
 import de.tryanixx.hdcapes.utils.Utils;
-import net.labymod.api.LabyModAPI;
 import net.labymod.api.LabyModAddon;
-import net.labymod.core.LabyModCore;
 import net.labymod.main.LabyMod;
 import net.labymod.settings.elements.BooleanElement;
 import net.labymod.settings.elements.ControlElement;
@@ -52,6 +50,9 @@ public class HDCapes extends LabyModAddon {
     private File tempFile;
 
     private HashMap<UUID, Boolean> fetchedUsers = new HashMap<>();
+
+    public static final String CLIENT_VERSIONPRETTY = "1.0";
+
 
     @Override
     public void onEnable() {
