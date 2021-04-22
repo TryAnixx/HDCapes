@@ -6,13 +6,10 @@ import javax.swing.UIManager;
 
 import java.awt.FileDialog;
 import java.awt.Window;
-import java.io.IOException;
 import javax.swing.JFileChooser;
 import javax.swing.JFrame;
 import javax.swing.filechooser.FileNameExtensionFilter;
 import javax.swing.filechooser.FileSystemView;
-
-import org.apache.commons.io.FileUtils;
 
 public class FileChooser {
     private static boolean init;

@@ -1,6 +1,5 @@
 package de.tryanixx.hdcapes;
 
-import de.tryanixx.hdcapes.authenticate.Authenticator;
 import de.tryanixx.hdcapes.cooldown.CooldownManager;
 import de.tryanixx.hdcapes.listeners.RenderEntityListener;
 import de.tryanixx.hdcapes.manager.HDCapesManager;
@@ -22,7 +21,6 @@ import net.labymod.utils.Material;
 import javax.imageio.IIOException;
 import javax.imageio.ImageIO;
 import javax.swing.*;
-import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.lang.reflect.InvocationTargetException;
@@ -36,11 +34,12 @@ public class HDCapes extends LabyModAddon {
 
     private static HDCapes instance;
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
+    private final ExecutorService executorService = Executors.newCachedThreadPool();
+
+    public static final String USER_AGENT = "Mozilla/5.0 (Macintosh; U; Intel Mac OS X 10.4; en-US; rv:1.9.2.2) Gecko/20100316 Firefox/3.6.2";
 
     private HDCapesManager hdCapesManager;
 
-    private Authenticator authenticator;
     private CooldownManager cooldownManager;
 
     public static final int MAX_HEIGHT = 1100;
@@ -53,21 +52,17 @@ public class HDCapes extends LabyModAddon {
     private HashMap<UUID, Boolean> fetchedUsers = new HashMap<>();
 
     public static int serverVersion;
-    public static final int CLIENT_VERSION = 1;
+    public static final int CLIENT_VERSION = 2;
     public static final String CLIENT_VERSIONPRETTY = "1.0";
-    private UpdateChecker updateChecker;
-
 
     @Override
     public void onEnable() {
         instance = this;
         api.registerForgeListener(hdCapesManager = new HDCapesManager());
 
-        authenticator = new Authenticator();
         cooldownManager = new CooldownManager();
 
-        updateChecker = new UpdateChecker();
-        updateChecker.check();
+        executorService.execute(new UpdateChecker());
 
         RequestAPI.fetchAndCacheUsersScheduled();
         LabyMod.getInstance().getDynamicTextureManager();
@@ -83,8 +78,8 @@ public class HDCapes extends LabyModAddon {
     @Override
     protected void fillSettings(List<SettingsElement> subSettings) {
         subSettings.add(new ButtonElement(1, "Choose texture (Offline-Preview)", new ControlElement.IconData(Material.ITEM_FRAME), "Click", false, buttonElement -> openFileDialog()));
-        subSettings.add(new ButtonElement(2, "Upload texture", new ControlElement.IconData(Material.REDSTONE_COMPARATOR), "Click", true, buttonElement -> uploadCapeTexture()));
-        subSettings.add(new ButtonElement(3, "Delete texture", new ControlElement.IconData(Material.BARRIER), "Click", true, buttonElement -> deleteCape()));
+        subSettings.add(new ButtonElement(2, "Upload texture", new ControlElement.IconData(Material.REDSTONE_COMPARATOR), "Click", true, buttonElement -> hdCapesManager.uploadCapeTexture()));
+        subSettings.add(new ButtonElement(3, "Delete texture", new ControlElement.IconData(Material.BARRIER), "Click", true, buttonElement -> hdCapesManager.deleteCape()));
         subSettings.add(new ButtonElement(4, "Refresh", new ControlElement.IconData(Material.BED), "Click", true, buttonElement -> refreshCosmetics()));
         subSettings.add(new BooleanElement("Only see own HDCape", this, new ControlElement.IconData(Material.BLAZE_ROD), "seeowncapeonly", this.seeowncapeonly).addCallback(aBoolean -> {
             seeowncapeonly = aBoolean;
@@ -110,7 +105,7 @@ public class HDCapes extends LabyModAddon {
                             img = Utils.getScaledImage(img);
                             JOptionPane.showMessageDialog(null, "Please use our recommend resolution or cape template! We scaled your texutre." + MAX_WIDTH + " x " + MAX_HEIGHT, "HDCapes", JOptionPane.ERROR_MESSAGE);
                         }
-                        BufferedImage image = parseImage(img, true);
+                        BufferedImage image = Utils.parseImage(img, true);
                         hdCapesManager.getTextureQueue().put(api.getPlayerUUID(), image);
                         tempFile = file;
                     } catch (IIOException e) {
@@ -123,27 +118,6 @@ public class HDCapes extends LabyModAddon {
         }
     }
 
-    protected BufferedImage parseImage(BufferedImage img, boolean parseImage) {
-        if (img != null && parseImage) {
-            int imageWidth = 64;
-            int imageHeight = 32;
-
-            BufferedImage srcImg = img;
-            int srcWidth = srcImg.getWidth();
-            int srcHeight = srcImg.getHeight();
-            while ((imageWidth < srcWidth) || (imageHeight < srcHeight)) {
-                imageWidth *= 2;
-                imageHeight *= 2;
-            }
-            BufferedImage imgNew = new BufferedImage(imageWidth, imageHeight, 2);
-            Graphics g = imgNew.getGraphics();
-            g.drawImage(img, 0, 0, null);
-            g.dispose();
-            return imgNew;
-        }
-        return img;
-    }
-
     private void refreshCosmetics() {
         disablePreview = true;
         fetchedUsers.clear();
@@ -153,22 +127,7 @@ public class HDCapes extends LabyModAddon {
             e.printStackTrace();
         }
         RequestAPI.fetchAndCacheUser();
-        disablePreview = true;
-    }
-
-    private void deleteCape() {
-        hdCapesManager.reset();
-        RequestAPI.deleteCape();
-    }
-
-    private void uploadCapeTexture() {
-        if (HDCapes.getInstance().getTempFile() == null) {
-            executorService.execute(() -> {
-                JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
-            });
-            return;
-        }
-        RequestAPI.upload();
+        disablePreview = false;
     }
 
     public static HDCapes getInstance() {
@@ -177,10 +136,6 @@ public class HDCapes extends LabyModAddon {
 
     public ExecutorService getExecutorService() {
         return executorService;
-    }
-
-    public Authenticator getAuthenticator() {
-        return authenticator;
     }
 
     public File getTempFile() {

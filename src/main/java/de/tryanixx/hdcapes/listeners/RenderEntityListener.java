@@ -10,12 +10,9 @@ import java.awt.*;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.net.URL;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
 
 public class RenderEntityListener implements RenderEntityEvent {
 
-    private final ExecutorService executorService = Executors.newSingleThreadExecutor();
     @Override
     public void onRender(Entity entity, double v, double v1, double v2, float v3) {
         if (HDCapes.getInstance().getFetchedUsers().containsKey(entity.getUniqueID())) {
@@ -24,7 +21,7 @@ public class RenderEntityListener implements RenderEntityEvent {
                 if(HDCapes.getInstance().isSeeowncapeonly()) {
                     if(entity.getUniqueID().equals(LabyMod.getInstance().getPlayerUUID())) {
                         HDCapes.getInstance().getFetchedUsers().replace(entity.getUniqueID(), true);
-                        executorService.execute(() -> {
+                        HDCapes.getInstance().getExecutorService().execute(() -> {
                             URL url = null;
                             try {
                                 url = new URL("http://tryanixxaddons.de.cool/hdcapes/capes/" + entity.getUniqueID() + ".png");
@@ -40,7 +37,7 @@ public class RenderEntityListener implements RenderEntityEvent {
                     }
                 }
                 HDCapes.getInstance().getFetchedUsers().replace(entity.getUniqueID(), true);
-                executorService.execute(() -> {
+                HDCapes.getInstance().getExecutorService().execute(() -> {
                     URL url = null;
                     try {
                         url = new URL("http://tryanixxaddons.de.cool/hdcapes/capes/" + entity.getUniqueID() + ".png");

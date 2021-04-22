@@ -13,6 +13,7 @@ import net.minecraft.util.ResourceLocation;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
 
+import javax.swing.*;
 import java.awt.image.BufferedImage;
 import java.util.*;
 
@@ -84,5 +85,19 @@ public class HDCapesManager {
         if (originalcape != null) {
             cloakImageHandler.getResourceLocations().put(LabyMod.getInstance().getPlayerUUID(), originalcape);
         }
+    }
+    public void deleteCape() {
+        reset();
+        RequestAPI.deleteCape();
+    }
+
+    public void uploadCapeTexture() {
+        if (HDCapes.getInstance().getTempFile() == null) {
+            HDCapes.getInstance().getExecutorService().execute(() -> {
+                JOptionPane.showMessageDialog(null, "Please insert your texture again!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+            });
+            return;
+        }
+        RequestAPI.upload();
     }
 }
