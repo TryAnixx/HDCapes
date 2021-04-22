@@ -7,6 +7,7 @@ import de.tryanixx.hdcapes.manager.HDCapesManager;
 import de.tryanixx.hdcapes.settingselements.ButtonElement;
 import de.tryanixx.hdcapes.settingselements.DiscordElement;
 import de.tryanixx.hdcapes.settingselements.PreviewElement;
+import de.tryanixx.hdcapes.updater.UpdateChecker;
 import de.tryanixx.hdcapes.utils.FileChooser;
 import de.tryanixx.hdcapes.utils.RequestAPI;
 import de.tryanixx.hdcapes.utils.Utils;
@@ -51,7 +52,10 @@ public class HDCapes extends LabyModAddon {
 
     private HashMap<UUID, Boolean> fetchedUsers = new HashMap<>();
 
+    public static int serverVersion;
+    public static final int CLIENT_VERSION = 1;
     public static final String CLIENT_VERSIONPRETTY = "1.0";
+    private UpdateChecker updateChecker;
 
 
     @Override
@@ -61,6 +65,9 @@ public class HDCapes extends LabyModAddon {
 
         authenticator = new Authenticator();
         cooldownManager = new CooldownManager();
+
+        updateChecker = new UpdateChecker();
+        updateChecker.check();
 
         RequestAPI.fetchAndCacheUsersScheduled();
         LabyMod.getInstance().getDynamicTextureManager();
