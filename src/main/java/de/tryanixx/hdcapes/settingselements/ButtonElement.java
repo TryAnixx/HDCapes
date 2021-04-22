@@ -99,8 +99,8 @@ public class ButtonElement extends ControlElement {
             }
             if (this.displayName.equals("Refresh")) {
                 setSettingEnabled(!CooldownManager.CooldownType.REFRESH.isActive());
-                if (CooldownManager.CooldownType.DELETE.isActive()) {
-                    setText("§c" + CooldownManager.CooldownType.DELETE.getSecondsLeft(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
+                if (CooldownManager.CooldownType.REFRESH.isActive()) {
+                    setText("§c" + CooldownManager.CooldownType.REFRESH.getSecondsLeft(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
                 } else {
                     setText(initBtnText);
                 }
