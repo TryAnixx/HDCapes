@@ -31,6 +31,7 @@ public class HDCapesManager {
     @SubscribeEvent
     public void handle(TickEvent.ClientTickEvent event) {
         ticker++;
+        if(ticker % 30 == 0) HDCapes.getInstance().getCooldownManager().update();
         if (ticker % 40 != 0) return;
         if (ticker == 40) {
             user = LabyMod.getInstance().getUserManager().getUser(LabyMod.getInstance().getPlayerUUID());

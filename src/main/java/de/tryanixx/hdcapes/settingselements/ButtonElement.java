@@ -2,6 +2,7 @@ package de.tryanixx.hdcapes.settingselements;
 
 import com.sun.jna.platform.win32.WinDef;
 import de.tryanixx.hdcapes.HDCapes;
+import de.tryanixx.hdcapes.cooldown.CooldownManager;
 import net.labymod.core.LabyModCore;
 import net.labymod.main.LabyMod;
 import net.labymod.settings.elements.ControlElement;
@@ -55,11 +56,11 @@ public class ButtonElement extends ControlElement {
             LabyModCore.getMinecraft().playSound(SettingsElement.BUTTON_PRESS_SOUND, 1.0F);
             this.clickListener.accept(this);
             if (this.displayName.equals("Upload texture")) {
-                if (cooldown) HDCapes.getInstance().getCooldownManager().startCooldownUpload();
+                if (cooldown) CooldownManager.CooldownType.UPLOAD.start();
             } else if (this.displayName.equals("Delete texture")) {
-                if (cooldown) HDCapes.getInstance().getCooldownManager().startCooldownDelete();
+                if (cooldown) CooldownManager.CooldownType.DELETE.start();
             } else if (this.displayName.equals("Refresh")) {
-                if (cooldown) HDCapes.getInstance().getCooldownManager().startCooldownRefresh();
+                if (cooldown) CooldownManager.CooldownType.REFRESH.start();
             }
         }
     }
@@ -82,24 +83,24 @@ public class ButtonElement extends ControlElement {
         if (cooldown) {
 
             if (this.displayName.equals("Upload texture")) {
-                setSettingEnabled(!HDCapes.getInstance().getCooldownManager().isCooldownUpload());
-                if (HDCapes.getInstance().getCooldownManager().isCooldownUpload()) {
-                    setText("§c" + HDCapes.getInstance().getCooldownManager().getRemainingTimeUpload(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
+                setSettingEnabled(!CooldownManager.CooldownType.UPLOAD.isActive());
+                if (CooldownManager.CooldownType.UPLOAD.isActive()) {
+                    setText("§c" + CooldownManager.CooldownType.UPLOAD.getSecondsLeft(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
                 } else {
                     setText(initBtnText);
                 }
             } else if (this.displayName.equals("Delete texture")) {
-                setSettingEnabled(!HDCapes.getInstance().getCooldownManager().isCooldownDelete());
-                if (HDCapes.getInstance().getCooldownManager().isCooldownDelete()) {
-                    setText("§c" + HDCapes.getInstance().getCooldownManager().getRemainingTimeDelete(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
+                setSettingEnabled(!CooldownManager.CooldownType.DELETE.isActive());
+                if (CooldownManager.CooldownType.DELETE.isActive()) {
+                    setText("§c" + CooldownManager.CooldownType.DELETE.getSecondsLeft(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
                 } else {
                     setText(initBtnText);
                 }
             }
             if (this.displayName.equals("Refresh")) {
-                setSettingEnabled(!HDCapes.getInstance().getCooldownManager().isCooldownRefresh());
-                if (HDCapes.getInstance().getCooldownManager().isCooldownRefresh()) {
-                    setText("§c" + HDCapes.getInstance().getCooldownManager().getRemainingTimeRefresh(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
+                setSettingEnabled(!CooldownManager.CooldownType.REFRESH.isActive());
+                if (CooldownManager.CooldownType.DELETE.isActive()) {
+                    setText("§c" + CooldownManager.CooldownType.DELETE.getSecondsLeft(), LabyModCore.getMinecraft().getFontRenderer().getStringWidth(initBtnText));
                 } else {
                     setText(initBtnText);
                 }
