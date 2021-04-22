@@ -49,7 +49,7 @@ public class PreviewElement extends SettingsElement {
 
     @Override
     public void draw(int x, int y, int maxX, int maxY, int mouseX, int mouseY) {
-        if(HDCapes.getInstance().isDisablePreview()) return;
+        if(HDCapes.getInstance().isDisablePreview()) return; //TODO FIX THE ERROR
         if(LabyMod.getInstance().isInGame()) {
             int posX = maxX + (maxX / 7);
             int posY = 120 + (x / 2);

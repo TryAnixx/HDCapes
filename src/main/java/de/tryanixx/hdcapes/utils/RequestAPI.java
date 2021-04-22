@@ -30,9 +30,9 @@ public class RequestAPI {
                 String users = getURLContent("http://tryanixxaddons.de.cool/hdcapes/database.php");
                 JsonArray object = new JsonParser().parse(users).getAsJsonArray();
                 object.forEach(jsonElement -> {
-                    String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
-                        if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
-                            HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
+                    String uuid = jsonElement.getAsString();
+                    if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
+                        HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(uuid), false);
                     }
                 });
             } catch (IOException e) {
@@ -48,9 +48,9 @@ public class RequestAPI {
                 String users = getURLContent("http://tryanixxaddons.de.cool/hdcapes/database.php");
                 JsonArray object = new JsonParser().parse(users).getAsJsonArray();
                 object.forEach(jsonElement -> {
-                    String uuid = jsonElement.getAsJsonObject().get("uuid").getAsString();
+                    String uuid = jsonElement.getAsString();
                     if (!HDCapes.getInstance().getFetchedUsers().containsKey(uuid)) {
-                        HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(jsonElement.getAsJsonObject().get("uuid").getAsString()), false);
+                        HDCapes.getInstance().getFetchedUsers().put(UUID.fromString(uuid), false);
                     }
                 });
             } catch (IOException e) {
