@@ -4,6 +4,7 @@ import de.tryanixx.hdcapes.cooldown.CooldownManager;
 import de.tryanixx.hdcapes.listeners.RenderEntityListener;
 import de.tryanixx.hdcapes.manager.HDCapesManager;
 import de.tryanixx.hdcapes.settingselements.ButtonElement;
+import de.tryanixx.hdcapes.settingselements.CapeTemplateElement;
 import de.tryanixx.hdcapes.settingselements.DiscordElement;
 import de.tryanixx.hdcapes.settingselements.PreviewElement;
 import de.tryanixx.hdcapes.updater.UpdateChecker;
@@ -86,6 +87,7 @@ public class HDCapes extends LabyModAddon {
             refreshCosmetics();
         }));
         subSettings.add(new DiscordElement("Discord", "Discord", "Discord"));
+        subSettings.add(new CapeTemplateElement("CapeTemplate", "CapeTemplate", "CapeTemplate"));
         subSettings.add(new PreviewElement());
     }
 

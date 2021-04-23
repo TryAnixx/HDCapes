@@ -112,7 +112,7 @@ public class RequestAPI {
                 if (httpUrlConnection.getResponseCode() != 200) {
                     int code = httpUrlConnection.getResponseCode();
                     System.out.println("ERROR CODE: " + code);
-                    JOptionPane.showMessageDialog(null, "Error! Please contact our Support!", "HDCapes", JOptionPane.ERROR_MESSAGE);
+                    JOptionPane.showMessageDialog(null, "Error! Please contact our Support! " + code, "HDCapes", JOptionPane.ERROR_MESSAGE);
                     return;
                 }
                 HDCapes.getInstance().setTempFile(null);
