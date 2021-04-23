@@ -21,7 +21,7 @@ public class DiscordElement extends SettingsElement {
 
     @Override
     public void mouseClicked(int i, int i1, int i2) {
-        LabyMod.getInstance().openWebpage("https://INSERTLINKHERE.de/", false);
+        LabyMod.getInstance().openWebpage("https://discord.hdcapes.de/", false);
     }
 
     @Override

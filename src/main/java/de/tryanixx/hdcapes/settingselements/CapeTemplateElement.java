@@ -21,7 +21,7 @@ public class CapeTemplateElement extends SettingsElement {
 
     @Override
     public void mouseClicked(int i, int i1, int i2) {
-
+        LabyMod.getInstance().openWebpage("https://capetemplate.hdcapes.de/", false);
     }
 
     @Override
@@ -58,8 +58,8 @@ public class CapeTemplateElement extends SettingsElement {
         GlStateManager.color(1.0F, 1.0F, 1.0F, 1.0F);
         Minecraft.getMinecraft().getTextureManager().bindTexture(CAPE_ICON);
         LabyMod.getInstance().getDrawUtils().drawTexture((add + 3), (height - 70 - add), 245.0D, 255.0D, (25 + add * 2), (25 + add * 2));
-        if(isMouseOver()) {
-            LabyMod.getInstance().getDrawUtils().drawHoveringText(mouseX, mouseY, new String[] { "CAPE TEMPLATE" });
+        if (isMouseOver()) {
+            LabyMod.getInstance().getDrawUtils().drawHoveringText(mouseX, mouseY, new String[]{"CAPE TEMPLATE"});
         }
         GlStateManager.popMatrix();
     }
