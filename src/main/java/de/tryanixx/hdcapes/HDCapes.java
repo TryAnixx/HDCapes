@@ -53,7 +53,7 @@ public class HDCapes extends LabyModAddon {
     private HashMap<UUID, Boolean> fetchedUsers = new HashMap<>();
 
     public static int serverVersion;
-    public static final int CLIENT_VERSION = 2;
+    public static final int CLIENT_VERSION = 3;
     public static final String CLIENT_VERSIONPRETTY = "1.0";
 
     @Override
