@@ -13,10 +13,21 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class Utils {
-    public static BufferedImage getScaledImage(BufferedImage srcImg) {
-        Image image = srcImg.getScaledInstance(HDCapes.MAX_WIDTH, HDCapes.MAX_HEIGHT, Image.SCALE_SMOOTH);
 
-        return toBufferedImage(image);
+    public static BufferedImage getScaledImage(BufferedImage src) {
+        int w = HDCapes.MAX_WIDTH;
+        int h = HDCapes.MAX_HEIGHT;
+        BufferedImage img = new BufferedImage(w, h, BufferedImage.TYPE_INT_RGB);
+        int x, y;
+        int ww = src.getWidth();
+        int hh = src.getHeight();
+        for (x = 0; x < w; x++) {
+            for (y = 0; y < h; y++) {
+                int col = src.getRGB(x * ww / w, y * hh / h);
+                img.setRGB(x, y, col);
+            }
+        }
+        return img;
     }
 
     private static BufferedImage toBufferedImage(Image img) {
@@ -65,6 +76,7 @@ public class Utils {
             return false;
         }
     }
+
     public static String getURLContent(String url) throws IOException {
         HttpURLConnection con = (HttpURLConnection) (new URL(url)).openConnection();
         con.setConnectTimeout(5000);
